@@ -12,7 +12,20 @@ export const handlerValidateChirp = (req: Request, res: Response) => {
     respondWithError(res, 400, "Chirp is too long");
     return;
   }
+
+  const profanity = ["kerfuffle", "sharbert", "fornax"];
+
+  const cleanedText = params.body
+    .split(" ")
+    .map((word) => {
+      if (profanity.includes(word.toLowerCase())) {
+        return "****";
+      }
+      return word;
+    })
+    .join(" ");
+
   respondWithJSON(res, 200, {
-    valid: true,
+    cleanedBody: cleanedText,
   });
 };
