@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "./json.js";
+import { BadRequestError } from "../error.js";
 
 export const handlerValidateChirp = (req: Request, res: Response) => {
   type parameters = {
@@ -9,8 +10,7 @@ export const handlerValidateChirp = (req: Request, res: Response) => {
 
   const maxChirpLength = 140;
   if (params.body.length > maxChirpLength) {
-    respondWithError(res, 400, "Chirp is too long");
-    return;
+    throw new BadRequestError("Chirp is too long. Max length is 140");
   }
 
   const profanity = ["kerfuffle", "sharbert", "fornax"];

@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import { handlerReadiness } from "./api/readiness.js";
 import {
+  middlewareErrorHandler,
   middlewareLogResponses,
   middlewareMetricsInc,
 } from "./api/middleware.js";
@@ -10,17 +11,27 @@ import { handlerValidateChirp } from "./api/chirp.js";
 const app = express();
 const PORT = 8080;
 
-app.use(express.json());
 app.use(middlewareLogResponses);
-app.use("/app", middlewareMetricsInc);
-app.use("/app", express.static("./src/app"));
+app.use(express.json());
 
-app.get("/api/healthz", handlerReadiness);
-app.post("/api/validate_chirp", handlerValidateChirp);
+app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
-app.post("/admin/reset", handlerResetMetrics);
+// In Express 4, unhandled async errors don’t automatically go to the error handler.
+// so we are catching them here
+app.get("/api/healthz", (req, res, next) => {
+  Promise.resolve(handlerReadiness(req, res)).catch(next);
+});
+app.post("/api/validate_chirp", (req, res, next) => {
+  Promise.resolve(handlerValidateChirp(req, res)).catch(next);
+});
+app.post("/admin/reset", (req, res, next) => {
+  Promise.resolve(handlerResetMetrics(req, res)).catch(next);
+});
+app.get("/admin/metrics", (req, res, next) => {
+  Promise.resolve(handlerMetrics(req, res)).catch(next);
+});
 
-app.get("/admin/metrics", handlerMetrics);
+app.use(middlewareErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
