@@ -10,7 +10,7 @@ import {
   middlewareMetricsInc,
 } from "./api/middleware.js";
 import { handlerMetrics } from "./api/metrics.js";
-import { handlerCreateChirp } from "./api/chirp.js";
+import { handlerCreateChirp, handlerGetChirps } from "./api/chirp.js";
 import { config } from "./config.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerCreateUser } from "./api/user.js";
@@ -34,6 +34,10 @@ app.get("/api/healthz", (req, res, next) => {
 
 app.post("/api/users", (req, res, next) => {
   Promise.resolve(handlerCreateUser(req, res)).catch(next);
+});
+
+app.get("/api/chirps", (req, res, next) => {
+  Promise.resolve(handlerGetChirps(req, res)).catch(next);
 });
 
 app.post("/api/chirps", (req, res, next) => {

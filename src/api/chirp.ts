@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "./json.js";
 import { BadRequestError } from "../error.js";
-import { createChirp } from "../db/queries/chirp.js";
+import { createChirp, getChirps } from "../db/queries/chirp.js";
 
 const cleanTextOfProfanity = (text: string) => {
   const profanity = ["kerfuffle", "sharbert", "fornax"];
@@ -44,4 +44,12 @@ export const handlerCreateChirp = async (req: Request, res: Response) => {
   }
 
   respondWithJSON(res, 201, chirp);
+};
+
+export const handlerGetChirps = async (req: Request, res: Response) => {
+  const chirps = await getChirps();
+  if (!chirps) {
+    throw new Error("Could not get chirps");
+  }
+  respondWithJSON(res, 200, chirps);
 };
