@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "./json.js";
 import { BadRequestError } from "../error.js";
-import { createChirp, getChirps } from "../db/queries/chirp.js";
+import { createChirp, getChirpById, getChirps } from "../db/queries/chirp.js";
 
 const cleanTextOfProfanity = (text: string) => {
   const profanity = ["kerfuffle", "sharbert", "fornax"];
@@ -52,4 +52,19 @@ export const handlerGetChirps = async (req: Request, res: Response) => {
     throw new Error("Could not get chirps");
   }
   respondWithJSON(res, 200, chirps);
+};
+
+export const handlerGetChirpById = async (req: Request, res: Response) => {
+  const { chirpId } = req.params;
+
+  if (!chirpId) {
+    throw new BadRequestError("Missing required fields");
+  }
+
+  const chirp = await getChirpById(chirpId);
+  if (!chirp) {
+    throw new Error("Could not get chirp");
+  }
+
+  respondWithJSON(res, 200, chirp);
 };
