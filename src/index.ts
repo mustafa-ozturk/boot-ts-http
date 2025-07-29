@@ -17,7 +17,7 @@ import {
 } from "./api/chirp.js";
 import { config } from "./config.js";
 import { handlerReset } from "./api/reset.js";
-import { handlerCreateUser } from "./api/user.js";
+import { handlerCreateUser, handlerLogin } from "./api/user.js";
 
 // automatic migrations
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -38,6 +38,10 @@ app.get("/api/healthz", (req, res, next) => {
 
 app.post("/api/users", (req, res, next) => {
   Promise.resolve(handlerCreateUser(req, res)).catch(next);
+});
+
+app.post("/api/login", (req, res, next) => {
+  Promise.resolve(handlerLogin(req, res)).catch(next);
 });
 
 app.get("/api/chirps", (req, res, next) => {

@@ -15,6 +15,13 @@
       "when": 1753822133978,
       "tag": "0001_pale_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753829995671,
+      "tag": "0002_typical_randall",
+      "breakpoints": true
     }
   ]
 }
