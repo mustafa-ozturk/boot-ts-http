@@ -10,4 +10,4 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 256 }).unique().notNull(),
 });
 
-export type NewUser = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
