@@ -29,7 +29,7 @@ export const middlewareMetricsInc = (
   res: Response,
   next: NextFunction
 ) => {
-  config.fileserverHits++;
+  config.api.fileServerHits++;
   next();
 };
 
