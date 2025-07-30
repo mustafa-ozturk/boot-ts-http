@@ -17,7 +17,8 @@ import {
 } from "./api/chirp.js";
 import { config } from "./config.js";
 import { handlerReset } from "./api/reset.js";
-import { handlerCreateUser, handlerLogin } from "./api/user.js";
+import { handlerCreateUser } from "./api/user.js";
+import { handlerLogin } from "./api/auth.js";
 
 // automatic migrations
 const migrationClient = postgres(config.db.url, { max: 1 });

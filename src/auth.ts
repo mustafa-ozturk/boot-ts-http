@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "jsonwebtoken";
-import { UnAuthorizedError } from "./error";
+import { BadRequestError, UnAuthorizedError } from "./error.js";
+import { Request } from "express";
 
 const TOKEN_ISSUER = "chirpy";
 
@@ -55,4 +56,20 @@ export const validateJWT = (tokenString: string, secret: string): string => {
   }
 
   return decoded.sub;
+};
+
+export const getBearerToken = (req: Request): string => {
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    throw new BadRequestError("Malformed authorization header");
+  }
+  return extractBearerToken(authHeader);
+};
+
+export const extractBearerToken = (header: string) => {
+  const splitAuth = header.split(" ");
+  if (splitAuth.length < 2 || splitAuth[0] !== "Bearer") {
+    throw new BadRequestError("Malformed authorization header");
+  }
+  return splitAuth[1];
 };

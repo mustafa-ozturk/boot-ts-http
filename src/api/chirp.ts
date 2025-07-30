@@ -1,11 +1,21 @@
 import { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "./json.js";
-import { BadRequestError } from "../error.js";
+import { BadRequestError, UnAuthorizedError } from "../error.js";
 import { createChirp, getChirpById, getChirps } from "../db/queries/chirp.js";
+import { getBearerToken, validateJWT } from "../auth.js";
+import { config } from "../config.js";
 
-const cleanTextOfProfanity = (text: string) => {
+const validateChirp = (body: string) => {
+  const maxChirpLength = 140;
+  if (body.length > maxChirpLength) {
+    throw new BadRequestError("Chirp is too long. Max length is 140");
+  }
   const profanity = ["kerfuffle", "sharbert", "fornax"];
 
+  return cleanTextOfProfanity(body, profanity);
+};
+
+const cleanTextOfProfanity = (text: string, profanity: string[]) => {
   const cleanedText = text
     .split(" ")
     .map((word) => {
@@ -22,26 +32,19 @@ const cleanTextOfProfanity = (text: string) => {
 export const handlerCreateChirp = async (req: Request, res: Response) => {
   type parameters = {
     body: string;
-    userId: string;
   };
   let params: parameters = req.body;
 
-  if (!params.body || !params.userId) {
+  const token = getBearerToken(req);
+  const userId = validateJWT(token, config.jwt.secret);
+
+  if (!params.body) {
     throw new BadRequestError("Missing required fields");
   }
 
-  const maxChirpLength = 140;
-  if (params.body.length > maxChirpLength) {
-    throw new BadRequestError("Chirp is too long. Max length is 140");
-  }
+  const cleaned = validateChirp(params.body);
 
-  const cleanedBody = cleanTextOfProfanity(params.body);
-
-  const chirp = await createChirp({ body: cleanedBody, userId: params.userId });
-
-  if (!chirp) {
-    throw new Error("Could not create chirp");
-  }
+  const chirp = await createChirp({ body: cleaned, userId: userId });
 
   respondWithJSON(res, 201, chirp);
 };
