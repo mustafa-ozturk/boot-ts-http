@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { JwtPayload } from "jsonwebtoken";
 import { BadRequestError, UnAuthorizedError } from "./error.js";
 import { Request } from "express";
@@ -72,4 +73,8 @@ export const extractBearerToken = (header: string) => {
     throw new BadRequestError("Malformed authorization header");
   }
   return splitAuth[1];
+};
+
+export const makeRefreshToken = () => {
+  return crypto.randomBytes(256).toString("hex");
 };

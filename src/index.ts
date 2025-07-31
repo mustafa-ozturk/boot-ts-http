@@ -19,6 +19,7 @@ import { config } from "./config.js";
 import { handlerReset } from "./api/reset.js";
 import { handlerCreateUser } from "./api/user.js";
 import { handlerLogin } from "./api/auth.js";
+import { handlerRefresh, handlerRevoke } from "./api/refresh.js";
 
 // automatic migrations
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -55,6 +56,14 @@ app.post("/api/chirps", (req, res, next) => {
 
 app.get("/api/chirps/:chirpId", (req, res, next) => {
   Promise.resolve(handlerGetChirpById(req, res)).catch(next);
+});
+
+app.post("/api/refresh", (req, res, next) => {
+  Promise.resolve(handlerRefresh(req, res)).catch(next);
+});
+
+app.post("/api/revoke", (req, res, next) => {
+  Promise.resolve(handlerRevoke(req, res)).catch(next);
 });
 
 app.post("/admin/reset", (req, res, next) => {

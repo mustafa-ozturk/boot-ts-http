@@ -1,21 +1,22 @@
 import { Request, Response } from "express";
 
-import { checkPasswordHash, makeJWT } from "../auth.js";
+import { checkPasswordHash, makeJWT, makeRefreshToken } from "../auth.js";
 import { getUserByEmail } from "../db/queries/users.js";
 import { BadRequestError, UnAuthorizedError } from "../error.js";
 import { config } from "../config.js";
 import { respondWithJSON } from "./json.js";
 import { UserResponse } from "./user.js";
+import { createRefreshToken } from "../db/queries/refreshTokens.js";
 
 type LoginResponse = UserResponse & {
   token: string;
+  refreshToken: string;
 };
 
 export const handlerLogin = async (req: Request, res: Response) => {
   type parameters = {
     email: string;
     password: string;
-    expiresIn: number;
   };
   let params: parameters = req.body;
 
@@ -37,11 +38,19 @@ export const handlerLogin = async (req: Request, res: Response) => {
     throw new UnAuthorizedError("Incorect email or password");
   }
 
-  if (!params.expiresIn || params.expiresIn > config.jwt.defaultDuration) {
-    params.expiresIn = config.jwt.defaultDuration;
-  }
+  const accessToken = makeJWT(
+    user.id,
+    config.jwt.defaultDuration,
+    config.jwt.secret
+  );
 
-  const accessToken = makeJWT(user.id, params.expiresIn, config.jwt.secret);
+  const refreshExpiration = new Date();
+  refreshExpiration.setDate(refreshExpiration.getDate() + 60);
+  const refreshToken = await createRefreshToken({
+    token: makeRefreshToken(),
+    expiresAt: refreshExpiration,
+    userId: user.id,
+  });
 
   respondWithJSON(res, 200, {
     id: user.id,
@@ -49,5 +58,6 @@ export const handlerLogin = async (req: Request, res: Response) => {
     updatedAt: user.updatedAt,
     email: user.email,
     token: accessToken,
+    refreshToken: refreshToken.token,
   } satisfies LoginResponse);
 };
