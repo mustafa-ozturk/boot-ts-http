@@ -16,22 +16,17 @@ export async function updateUser(
   email: string,
   hashedPassword: string
 ) {
-  try {
-    const [row] = await db
-      .update(users)
-      .set({
-        email: email,
-        hashedPassword: hashedPassword,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userID))
-      .returning();
+  const [row] = await db
+    .update(users)
+    .set({
+      email: email,
+      hashedPassword: hashedPassword,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, userID))
+    .returning();
 
-    return row;
-  } catch (error) {
-    console.log("what the");
-    console.log(error);
-  }
+  return row;
 }
 
 export async function deleteUsers() {
@@ -46,4 +41,14 @@ export async function getUserByEmail(email: string) {
 export async function getUserByID(id: string) {
   const [row] = await db.select().from(users).where(eq(users.id, id));
   return row;
+}
+
+export async function upgradeUserToRed(userId: string) {
+  const rows = await db
+    .update(users)
+    .set({ isChirpyRed: true })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return rows.length > 0;
 }

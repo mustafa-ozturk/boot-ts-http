@@ -21,6 +21,7 @@ import { handlerReset } from "./api/reset.js";
 import { handlerCreateUser, handlerUpdateUser } from "./api/user.js";
 import { handlerLogin } from "./api/auth.js";
 import { handlerRefresh, handlerRevoke } from "./api/refresh.js";
+import { handlerWebhook } from "./api/webhooks.js";
 
 // automatic migrations
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -80,6 +81,10 @@ app.get("/admin/metrics", (req, res, next) => {
 
 app.delete("/api/chirps/:chirpID", (req, res, next) => {
   Promise.resolve(handlerDeleteChirpById(req, res)).catch(next);
+});
+
+app.post("/api/polka/webhooks", (req, res, next) => {
+  Promise.resolve(handlerWebhook(req, res)).catch(next);
 });
 
 app.use(middlewareErrorHandler);

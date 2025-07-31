@@ -1,7 +1,13 @@
 import { Request, Response } from "express";
-import { createUser, getUserByEmail, updateUser } from "../db/queries/users.js";
+import {
+  createUser,
+  getUserByEmail,
+  getUserByID,
+  updateUser,
+  upgradeUserToRed,
+} from "../db/queries/users.js";
 import { respondWithJSON } from "./json.js";
-import { BadRequestError, UnAuthorizedError } from "../error.js";
+import { BadRequestError, NotFoundError, UnAuthorizedError } from "../error.js";
 import {
   checkPasswordHash,
   getBearerToken,
@@ -43,6 +49,7 @@ export const handlerCreateUser = async (req: Request, res: Response) => {
     email: user.email,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    isChirpyRed: user.isChirpyRed,
   } satisfies UserResponse);
 };
 
@@ -72,5 +79,6 @@ export const handlerUpdateUser = async (req: Request, res: Response) => {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     email: user.email,
+    isChirpyRed: user.isChirpyRed,
   } satisfies UserResponse);
 };

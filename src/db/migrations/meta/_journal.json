@@ -36,6 +36,13 @@
       "when": 1753925060050,
       "tag": "0004_smooth_mathemanic",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1753998249111,
+      "tag": "0005_aspiring_anthem",
+      "breakpoints": true
     }
   ]
 }
