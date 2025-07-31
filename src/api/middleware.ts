@@ -46,7 +46,7 @@ export const middlewareErrorHandler = (
   } else if (err instanceof UnAuthorizedError) {
     code = 401;
   } else if (err instanceof ForbiddenError) {
-    code = 402;
+    code = 403;
   } else if (err instanceof NotFoundError) {
     code = 404;
   } else {

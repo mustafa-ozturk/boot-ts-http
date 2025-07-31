@@ -51,7 +51,7 @@ export const handlerUpdateUser = async (req: Request, res: Response) => {
     email: string;
     password: string;
   };
-  let accessToken = getBearerToken(req);
+  const accessToken = getBearerToken(req);
   const subject = validateJWT(accessToken, config.jwt.secret);
 
   let params: parameters = req.body;
