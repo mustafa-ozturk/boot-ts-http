@@ -76,5 +76,5 @@ export const extractBearerToken = (header: string) => {
 };
 
 export const makeRefreshToken = () => {
-  return crypto.randomBytes(256).toString("hex");
+  return crypto.randomBytes(32).toString("hex");
 };

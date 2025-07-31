@@ -4,49 +4,38 @@ import {
   createRefreshToken,
   getRefreshToken,
   revokeRefreshToken,
-} from "../db/queries/refreshTokens.js";
+  userForRefreshToken,
+} from "../db/queries/refresh.js";
 import { respondWithError, respondWithJSON } from "./json.js";
-import { getUserByID } from "../db/queries/users.js";
 import { config } from "../config.js";
+import { UnAuthorizedError } from "../error.js";
 
 export const handlerRefresh = async (req: Request, res: Response) => {
-  const token = getBearerToken(req);
+  const refreshToken = getBearerToken(req);
 
-  const dbToken = await getRefreshToken(token);
-
-  if (!dbToken) {
-    respondWithError(res, 401, "Unauthorized");
-    return;
+  const result = await userForRefreshToken(refreshToken);
+  if (!result) {
+    throw new UnAuthorizedError("invalid refresh token");
   }
 
-  if (dbToken.revokedAt !== null) {
-    respondWithError(res, 401, "Unauthorized");
-    return;
-  }
-
-  if (dbToken.expiresAt < new Date()) {
-    respondWithError(res, 401, "Unauthorized");
-    return;
-  }
-
-  const user = await getUserByID(dbToken.userId);
-  if (!user) {
-    throw new Error("Couldn't find user");
-  }
-
+  const user = result.user;
   const accessToken = makeJWT(
     user.id,
     config.jwt.defaultDuration,
     config.jwt.secret
   );
 
+  type response = {
+    token: string;
+  };
+
   respondWithJSON(res, 200, {
     token: accessToken,
-  });
+  } satisfies response);
 };
 
 export const handlerRevoke = async (req: Request, res: Response) => {
   const token = getBearerToken(req);
   await revokeRefreshToken(token);
-  res.status(204).end();
+  res.status(204).send();
 };

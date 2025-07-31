@@ -6,7 +6,7 @@ import { BadRequestError, UnAuthorizedError } from "../error.js";
 import { config } from "../config.js";
 import { respondWithJSON } from "./json.js";
 import { UserResponse } from "./user.js";
-import { createRefreshToken } from "../db/queries/refreshTokens.js";
+import { createRefreshToken } from "../db/queries/refresh.js";
 
 type LoginResponse = UserResponse & {
   token: string;
@@ -43,14 +43,11 @@ export const handlerLogin = async (req: Request, res: Response) => {
     config.jwt.defaultDuration,
     config.jwt.secret
   );
-
-  const refreshExpiration = new Date();
-  refreshExpiration.setDate(refreshExpiration.getDate() + 60);
-  const refreshToken = await createRefreshToken({
-    token: makeRefreshToken(),
-    expiresAt: refreshExpiration,
-    userId: user.id,
-  });
+  const refreshToken = makeRefreshToken();
+  const saved = await createRefreshToken(user.id, refreshToken);
+  if (!saved) {
+    throw new UnAuthorizedError("Could not save refresh token");
+  }
 
   respondWithJSON(res, 200, {
     id: user.id,
@@ -58,6 +55,6 @@ export const handlerLogin = async (req: Request, res: Response) => {
     updatedAt: user.updatedAt,
     email: user.email,
     token: accessToken,
-    refreshToken: refreshToken.token,
+    refreshToken: refreshToken,
   } satisfies LoginResponse);
 };

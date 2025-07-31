@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { respondWithError, respondWithJSON } from "./json.js";
 import { BadRequestError, UnAuthorizedError } from "../error.js";
-import { createChirp, getChirpById, getChirps } from "../db/queries/chirp.js";
+import { createChirp, getChirpById, getChirps } from "../db/queries/chirps.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
 
