@@ -17,7 +17,7 @@ import {
 } from "./api/chirp.js";
 import { config } from "./config.js";
 import { handlerReset } from "./api/reset.js";
-import { handlerCreateUser } from "./api/user.js";
+import { handlerCreateUser, handlerUpdateUser } from "./api/user.js";
 import { handlerLogin } from "./api/auth.js";
 import { handlerRefresh, handlerRevoke } from "./api/refresh.js";
 
@@ -36,6 +36,10 @@ app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 // so we are catching them here
 app.get("/api/healthz", (req, res, next) => {
   Promise.resolve(handlerReadiness(req, res)).catch(next);
+});
+
+app.put("/api/users", (req, res, next) => {
+  Promise.resolve(handlerUpdateUser(req, res)).catch(next);
 });
 
 app.post("/api/users", (req, res, next) => {

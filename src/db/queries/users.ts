@@ -11,6 +11,29 @@ export async function createUser(user: NewUser) {
   return result;
 }
 
+export async function updateUser(
+  userID: string,
+  email: string,
+  hashedPassword: string
+) {
+  try {
+    const [row] = await db
+      .update(users)
+      .set({
+        email: email,
+        hashedPassword: hashedPassword,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userID))
+      .returning();
+
+    return row;
+  } catch (error) {
+    console.log("what the");
+    console.log(error);
+  }
+}
+
 export async function deleteUsers() {
   await db.delete(users);
 }
