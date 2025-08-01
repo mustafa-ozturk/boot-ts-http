@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { chirps, NewChirp } from "../schema.js";
 
@@ -7,8 +7,13 @@ export async function createChirp(chirp: NewChirp) {
   return result;
 }
 
-export async function getChirps() {
-  const rows = await db.select().from(chirps).orderBy(asc(chirps.createdAt));
+export async function getChirps(sort?: "asc" | "desc") {
+  const rows = await db
+    .select()
+    .from(chirps)
+    .orderBy(
+      !sort || sort === "asc" ? asc(chirps.createdAt) : desc(chirps.createdAt)
+    );
   return rows;
 }
 
@@ -17,8 +22,12 @@ export async function getChirpById(id: string) {
   return row;
 }
 
-export async function getChirpsByUserId(userId: string) {
-  const rows = await db.select().from(chirps).where(eq(chirps.userId, userId));
+export async function getChirpsByUserId(userId: string, sort?: "asc" | "desc") {
+  const rows = await db
+    .select()
+    .from(chirps)
+    .where(eq(chirps.userId, userId))
+    .orderBy(sort === "asc" ? asc(chirps.createdAt) : desc(chirps.createdAt));
   return rows;
 }
 
