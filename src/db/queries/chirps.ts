@@ -17,6 +17,11 @@ export async function getChirpById(id: string) {
   return row;
 }
 
+export async function getChirpsByUserId(userId: string) {
+  const rows = await db.select().from(chirps).where(eq(chirps.userId, userId));
+  return rows;
+}
+
 export async function deleteChirpById(id: string) {
   const rows = await db.delete(chirps).where(eq(chirps.id, id)).returning();
   return rows.length > 0;

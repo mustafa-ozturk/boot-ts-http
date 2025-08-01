@@ -11,6 +11,7 @@ import {
   deleteChirpById,
   getChirpById,
   getChirps,
+  getChirpsByUserId,
 } from "../db/queries/chirps.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
@@ -60,7 +61,19 @@ export const handlerCreateChirp = async (req: Request, res: Response) => {
 };
 
 export const handlerGetChirps = async (req: Request, res: Response) => {
-  const chirps = await getChirps();
+  let authorId;
+  let authorIdQuery = req.query.authorId;
+  // validate it cuz it can contain anything
+  if (typeof authorIdQuery === "string") {
+    authorId = authorIdQuery;
+  }
+
+  let chirps;
+  if (authorId) {
+    chirps = await getChirpsByUserId(authorId);
+  } else {
+    chirps = await getChirps();
+  }
   if (!chirps) {
     throw new Error("Could not get chirps");
   }
